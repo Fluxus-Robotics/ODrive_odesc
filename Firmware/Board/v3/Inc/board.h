@@ -70,7 +70,13 @@
 // Run control loop at the same frequency as the current measurements.
 #define CONTROL_TIMER_PERIOD_TICKS  (2 * TIM_1_8_PERIOD_CLOCKS * (TIM_1_8_RCR + 1))
 
-#define TIM1_INIT_COUNT (TIM_1_8_PERIOD_CLOCKS / 2 - 1 * 128) // TODO: explain why this offset
+// Stock: (TIM_1_8_PERIOD_CLOCKS / 2 - 1 * 128) = 1622, i.e. ~83 deg lead.
+// With that, M1 phase edges at ~50% duty (low speed) land 128 clocks before
+// the M0 current/DC_CAL samples and corrupt them. With 500, edges of either
+// motor at 50% duty are 1250 clocks (7.4 us) away from the other motor's
+// samples, and the TIM1 (M0, injected) and TIM8 (M1, regular) ADC triggers
+// are still 500 clocks apart with M0 sampled first.
+#define TIM1_INIT_COUNT 500
 
 // The delta from the control loop timestamp to the current sense timestamp is
 // exactly 0 for M0 and TIM1_INIT_COUNT for M1.
